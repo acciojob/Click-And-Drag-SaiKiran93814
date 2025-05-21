@@ -36,6 +36,83 @@
 
 <script>
 //Your code goes here 
+	const container = document.getElementById('container');
+  const containerRect = container.getBoundingClientRect();
+
+  // Number of cubes
+  const rows = 3;
+  const cols = 4;
+  const cubeSize = 100;
+  const gap = 10;
+
+  // Store state
+  let selectedCube = null;
+  let offsetX = 0;
+  let offsetY = 0;
+
+  // Create cubes and position in a grid initially
+  for (let i = 0; i < rows * cols; i++) {
+    const cube = document.createElement('div');
+    cube.classList.add('cube');
+
+    // Calculate initial grid position:
+    const colIndex = i % cols;
+    const rowIndex = Math.floor(i / cols);
+
+    // Position cubes absolutely relative to container
+    // left = colIndex * (cube + gap)
+    // top = rowIndex * (cube + gap)
+    cube.style.left = (colIndex * (cubeSize + gap)) + 'px';
+    cube.style.top = (rowIndex * (cubeSize + gap)) + 'px';
+
+    container.appendChild(cube);
+
+    // Add mouse listeners to each cube
+    cube.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+      selectedCube = cube;
+      selectedCube.classList.add('dragging');
+
+      // Calculate offset of cursor inside the cube to drag smoothly
+      const cubeRect = cube.getBoundingClientRect();
+      offsetX = e.clientX - cubeRect.left;
+      offsetY = e.clientY - cubeRect.top;
+
+      // Add listeners for mousemove and mouseup to document
+      document.addEventListener('mousemove', onMouseMove);
+      document.addEventListener('mouseup', onMouseUp);
+    });
+  }
+
+  function onMouseMove(e) {
+    if (!selectedCube) return;
+
+    // Calculate new position relative to container
+    const containerRect = container.getBoundingClientRect();
+
+    let newLeft = e.clientX - containerRect.left - offsetX;
+    let newTop = e.clientY - containerRect.top - offsetY;
+
+    // Boundary constraints to keep cube inside container
+    newLeft = Math.max(0, Math.min(newLeft, container.clientWidth - cubeSize));
+    newTop = Math.max(0, Math.min(newTop, container.clientHeight - cubeSize));
+
+    selectedCube.style.left = newLeft + 'px';
+    selectedCube.style.top = newTop + 'px';
+  }
+
+  function onMouseUp(e) {
+    if (!selectedCube) return;
+
+    // Remove dragging class
+    selectedCube.classList.remove('dragging');
+
+    // Remove event listeners
+    document.removeEventListener('mousemove', onMouseMove);
+    document.removeEventListener('mouseup', onMouseUp);
+
+    selectedCube = null;
+  }
 </script>
 
   </body>
